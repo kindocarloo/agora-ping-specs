@@ -91,5 +91,4 @@
 |---|---|---|---|---|
 | 1 | Zero application code, schemas, tests, or CI across `api`, `web`, and `android` | Platform exists only as specs and `AGENTS.md` stubs on `main` | Scaffold Kotlin, Next.js, TypeScript API, and Supabase schemas/migrations | 11, 15 #3 |
 | 2 | All 5 `AGENTS.md` files are identical 9-line stubs | Sub-repos lack Kotlin/Next.js/TypeScript-API/Supabase build, lint, and test rules | Add stack-specific instructions to each `agora-ping-*/AGENTS.md` | 04 #2, 15 #4 |
-| 3 | Missing `agora-ping-specs/planning/sense-making.csv` | Environmental scanning has not been run against `business-logic-v1.1.md` | Run Recipe 3 (`14_DEVELOPER_WORKFLOWS.md`) | 04 #5, 15 #5 |
-| 4 | `<Team Name>` placeholder remains in `business-logic-v1.1.md` | Needed before external launch/disclosures | Confirm team name and update `business-logic-v1.1.md` | 15 #2 |
+| 3 | `<Team Name>` placeholder remains in `business-logic-v1.1.md` | Needed before external launch/disclosures | Confirm team name and update `business-logic-v1.1.md` | 15 #2 |

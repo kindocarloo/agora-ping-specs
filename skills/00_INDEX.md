@@ -57,6 +57,7 @@
 
 ## Changelog
 
+- **2026-11-22 (rev 5)** — Completed STEEPLE environmental scan (`planning/sense-making.csv` + `planning/sense-making.md`, 21 verified sources across 7 factors), retired Limitation `#5` in `15_KNOWN_LIMITATIONS.md`, and updated `01_ARCHITECTURE.md` debt register.
 - **2026-11-22 (rev 4)** — Promoted `business-logic-v1.1-proposed.md` to approved `business-logic-v1.1.md` (confirming `AP` short code, `AP1` QR contract, `CAS`/`SWP`/`TAR`/`YAM` crop codes, `k >= 5`, `3` flags, `3` private hits, `30d`/`7d` retention, TypeScript API), customized `git-guidelines.md` (`WAP`/`BAP`/`AAP`/`SAP` + `agora-ping-android`), added Lockstep Set `#7`, retired Limitation `#1`, and refreshed `00`, `01`, `04`, `06`, `07`, `08`, `09`, `10`, `13`, and `15`.
 - **2026-11-22 (rev 3)** — Added Offline QR Specimen Label Generator & Scanner (`sample_uuid`, crop code, date; PNG/PDF via Android native share/print sheet; scan to retrieve/update) to `business-logic-v1.0.md`, `business-logic-v1.1-proposed.md`, `01_ARCHITECTURE.md`, and `09_SECURITY.md`.
 - **2026-11-22 (rev 2)** — Refined `business-logic-v1.0.md` with the Official Guide Descriptor Engine (versioned trait decks ordered by plant part with numeric research codes), sequential one-by-one trait wizard, continuous multi-specimen loop (`sample_uuid`), and per-crop CSV/JSON export; synced `00`, `01`, `04` (added Lockstep Set `#6`), `07`, and `08`.
