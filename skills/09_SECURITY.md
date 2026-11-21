@@ -38,9 +38,9 @@
 2. **Coarse zone polygon location protection & zero-PII `AP1` QR tags** — Generalize exact plot coordinates to coarse zone polygons (municipality/city-level or coarse grid cell) upon sync; never persist/log exact pins; encode only `AP1|<sample_uuid>|<crop_code>|<YYYY-MM-DD>` (zero PII/GPS) inside printed QR labels (see 04 #7).
 3. **No per-user trails** — Never track, store, or log enumerator movement paths.
 4. **Retention limits** — Auto-expire unsynced local drafts after **30 days** (warn at day 25) and unverified transient server staging records after **7 days**.
-5. **Minimum sample aggregation threshold (`k >= 5`)** — Regional trait summaries render only when `(crop_type, coarse_zone)` has at least `5` samples.
-6. **Explicit opt-in & revocable consent** — Default `local_only`; require explicit opt-in before online sharing, public dataset inclusion, or data resale, and support contributor withdrawal/deletion.
-7. **Private guideline hits only (no public reputation scores)** — Max `1` flag/user/`sample_uuid`; `3` distinct flags auto-hide the sample; `3` confirmed hits trigger a private review hold; never expose hits or reputation metrics publicly.
+5. **Minimum sample aggregation threshold (`k >= 5`) & statistical isolation** — `system_setting` rejects `min_aggregation_k < 5` or non-integers, `effective_min_aggregation_k()` enforces a hard `GREATEST(5, ...)` floor, and `v_regional_trait_summary` requires `>= k` distinct verified contributing specimens with real non-null values per immutable `(crop_code, zone_uuid, trait_deck_uuid, trait_descriptor_uuid)` group (`v1.0.1.sql`).
+6. **Explicit opt-in & revocable consent** — Default `local_only`; require explicit opt-in before online sharing, public dataset inclusion, or data resale; revoking `community_share` in `consent_record` automatically propagates `consent_status = 'withdrawn'` to `sample` (`v1.0.1.sql`).
+7. **Private guideline hits & PostgREST lockdown** — Direct base-table access and maintenance RPCs (`cleanup_expired_staging`) are revoked from `PUBLIC`/`anon`/`authenticated`; public PostgREST reads use only column-safe views (`v_public_*`, `v_explorer_*`, `v_regional_trait_summary`) that omit server `id`, `created_by`, drafts, unverified/expired staging rows, and moderation hits (`v1.0.1.sql`). Max `1` flag/user/`sample_uuid`, self-flag blocked, `3` distinct flags auto-hide, `3` confirmed hits set private `publishing_hold_until`.
 8. **Zero financial bait** — No cash, credits, points, badges, or convertible rewards.
 
 ---

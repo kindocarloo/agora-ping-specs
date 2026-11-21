@@ -33,7 +33,7 @@
 | [04_CHANGE_RULES.md](04_CHANGE_RULES.md) | Lockstep sets, hidden couplings, retest checklists | Bootstrap + descriptor deck lockstep active | 2026-11-22 |
 | [05_DEBUGGING_PLAYBOOK.md](05_DEBUGGING_PLAYBOOK.md) | Logs, exact error symptoms, diagnostic commands | Minimal (workspace/git only) | 2026-11-21 |
 | [06_FAILURE_STORIES.md](06_FAILURE_STORIES.md) | Numbered incidents and template scars | 1 resolved bootstrap scar; 0 runtime incidents | 2026-11-22 |
-| [07_DATABASE.md](07_DATABASE.md) | Supabase, `sample_uuid`/`session_uuid`, `k>=5`, `30d`/`7d` invariants | Spec-backed v1.1 (migrations TBD) | 2026-11-22 |
+| [07_DATABASE.md](07_DATABASE.md) | `v1.0.0.sql` + `v1.0.1.sql` map, triggers, views, DB/API boundary | Schema v1.0.1 hardened; SQLite TBD | 2026-11-22 |
 | [08_API.md](08_API.md) | TypeScript API surface, sync upserts, moderation, RBAC, versioning | Spec-backed v1.1 (routes TBD) | 2026-11-22 |
 | [09_SECURITY.md](09_SECURITY.md) | Threat model, auth/RBAC, `AP1` QR privacy, confirmed thresholds | Spec-backed v1.1 (controls TBD) | 2026-11-22 |
 | [10_DEPLOYMENT.md](10_DEPLOYMENT.md) | Branch promotion, `WAP`/`BAP`/`AAP`/`SAP` tags, release checklist | Git/tag policy customized; infra TBD | 2026-11-22 |
@@ -57,6 +57,8 @@
 
 ## Changelog
 
+- **2026-11-22 (rev 7)** — Added forward migration `db-schema/v1.0.1.sql` and reproducible test suite `db-schema/tests/v1.0.1.test.sql` addressing all 5 schema review findings (published-deck immutability & retirement, per-trait `k >= 5` floor, deck/unit-isolated aggregation, base-table grant/RLS lockdown with column-safe public views, explicit staging/verification lifecycle & bounded tombstone cleanup) plus sync/consent/moderation/trait-validation triggers; updated `db-design-choices.md`, `07`, `08`, and `09`.
+- **2026-11-22 (rev 6)** — Generated idempotent Supabase PostgreSQL schema `db-schema/v1.0.0.sql` (14 tables, 11 enums, published-deck immutability trigger, `k >= 5` regional summary view, RLS policies, MVP seeds), documented `vX.Y.Z` forward-migration vs Supabase-snapshot versioning in `db-design-choices.md`, and updated `07_DATABASE.md`.
 - **2026-11-22 (rev 5)** — Completed STEEPLE environmental scan (`planning/sense-making.csv` + `planning/sense-making.md`, 21 verified sources across 7 factors), retired Limitation `#5` in `15_KNOWN_LIMITATIONS.md`, and updated `01_ARCHITECTURE.md` debt register.
 - **2026-11-22 (rev 4)** — Promoted `business-logic-v1.1-proposed.md` to approved `business-logic-v1.1.md` (confirming `AP` short code, `AP1` QR contract, `CAS`/`SWP`/`TAR`/`YAM` crop codes, `k >= 5`, `3` flags, `3` private hits, `30d`/`7d` retention, TypeScript API), customized `git-guidelines.md` (`WAP`/`BAP`/`AAP`/`SAP` + `agora-ping-android`), added Lockstep Set `#7`, retired Limitation `#1`, and refreshed `00`, `01`, `04`, `06`, `07`, `08`, `09`, `10`, `13`, and `15`.
 - **2026-11-22 (rev 3)** — Added Offline QR Specimen Label Generator & Scanner (`sample_uuid`, crop code, date; PNG/PDF via Android native share/print sheet; scan to retrieve/update) to `business-logic-v1.0.md`, `business-logic-v1.1-proposed.md`, `01_ARCHITECTURE.md`, and `09_SECURITY.md`.
