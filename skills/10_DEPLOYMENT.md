@@ -2,7 +2,7 @@
 
 **Purpose:** Maturity-based branch promotion flow, release tagging rules, cross-component release order, and release checklist.
 
-**Confidence note:** verified against pre-initial-commit workspace (unborn `HEAD` on `main` across all 4 repos) on 2026-11-21. Branching and tagging governance is verified from `agora-ping-specs/git-guidelines.md` (Part 2); hosting/CI/CD deployment pipelines do not exist yet. The code wins (see 16 #7).
+**Confidence note:** verified against approved `agora-ping-specs/business-logic-v1.1.md` and customized `agora-ping-specs/git-guidelines.md` (`AP` / `WAP`, `BAP`, `AAP`, `SAP`) on 2026-11-22. Branching and tagging governance is verified from `git-guidelines.md` (Part 2); hosting/CI/CD pipelines do not exist yet. The code wins (see 16 #7).
 
 ---
 
@@ -42,12 +42,12 @@ main (Development / Unit Testing)
 
 Format: `<prefix>.0X.Y.00Z[a|b|rc][N]` (exact zero-padding; never collapse `01.0.001` to `1.0.1`).
 
-| Product | Repo | Tag Prefix Formula | Current Template Placeholder |
+| Product | Repo | Tag Prefix Formula | Confirmed Prefix |
 |---|---|---|---|
-| Web App | `agora-ping-web` | `W` + `<ShortCode>` | `WCN` *(customize via 04 #1)* |
-| Backend API | `agora-ping-api` | `B` + `<ShortCode>` | `BCN` *(customize via 04 #1)* |
-| Android App | `agora-ping-android` | `A` + `<ShortCode>` | `ACN` *(customize via 04 #1)* |
-| Specifications | `agora-ping-specs` | `S` + `<ShortCode>` | `SCN` *(customize via 04 #1)* |
+| Web App | `agora-ping-web` | `W` + `AP` | `WAP` (Next: `WAP.01.0.001`) |
+| Backend API | `agora-ping-api` | `B` + `AP` | `BAP` (Next: `BAP.01.0.001`) |
+| Android App | `agora-ping-android` | `A` + `AP` | `AAP` (Next: `AAP.01.0.001`) |
+| Specifications | `agora-ping-specs` | `S` + `AP` | `SAP` (Next: `SAP.01.0.001`) |
 
 ### Hard Tag Rules
 

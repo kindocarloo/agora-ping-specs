@@ -1,68 +1,69 @@
 # 09 — Security
 
-**Purpose:** Threat model, authentication, authorization layers, mandatory privacy controls, secrets handling, and security checklist for changes.
+**Purpose:** Threat model, authentication, authorization layers, mandatory privacy & non-monetary controls, secrets handling, and security checklist for changes.
 
-**Confidence note:** verified against pre-initial-commit workspace (unborn `HEAD` on `main` across all 4 repos) on 2026-11-21. No runtime security controls exist yet; requirements below are verified from `agora-ping-specs/business-logic-v1.0.md` and `handoff.md`. The code wins (see 16 #7).
+**Confidence note:** verified against updated `agora-ping-specs/business-logic-v1.0.md` on 2026-11-22. No runtime security controls exist yet; requirements below are verified from `business-logic-v1.0.md` and `handoff.md`. The code wins (see 16 #7).
 
 ---
 
-## Threat Model (Baseline — Inferred from Platform & Specs)
+## Threat Model (Baseline — Derived from `business-logic-v1.0.md`)
 
-`agora-ping-ecosystem` will expose a public API to Web and Android clients with five user tiers (including unauthenticated Guests) and privacy-sensitive data (including location/activity data). Primary threat classes:
+`agora-ping` combines offline Android field data collection, community data sharing, Supabase persistence, and public Guest access. Primary threat classes:
 
-1. **Privilege escalation:** Guest (`E`), Contributor (`D`), or Moderator (`C`) invoking Administrator (`B`) or System Administrator (`A`) endpoints.
-2. **Privacy & re-identification leaks:** Persisting or exposing raw location traces, per-user trails, or small-bucket analytics that violate Data Privacy Act requirements (`business-logic-v1.0.md` line 39).
-3. **Auth token spoofing:** Trusting client-claimed email/user IDs instead of verifying Google Sign-In ID tokens server-side.
-4. **Secret leakage across 4 repos:** Committing OAuth client secrets, signing keystores, DB credentials, or API keys into any of the four GitHub repos (`kindocarloo/agora-ping-*`).
+1. **Location & trail re-identification:** Syncing raw farm/field GPS coordinates or sequential enumerator locations enables tracking researchers or growers.
+2. **Small-bucket deanonymization:** Returning regional trait summaries with too few samples exposes individual submissions.
+3. **Privilege escalation:** `E. Guest` or `D. Field Researcher` invoking `C. Community Reviewer`, `B. Administrator`, or `A. System Administrator` endpoints (or reading private guideline hits).
+4. **Auth token spoofing:** Accepting unverified Google Sign-In claims from clients instead of verifying tokens server-side in `agora-ping-api`.
+5. **Malicious/noisy trait poisoning or flag abuse:** Coordinated flagging or malformed trait uploads corrupting shared datasets without threshold moderation.
+6. **Secret leakage across 4 repos:** Committing Supabase service-role keys, Google OAuth secrets, or Android signing keystores to `kindocarloo/agora-ping-*`.
 
 ---
 
 ## Authentication & Authorization Layers
 
-- **Authentication (Verified requirement):** Google Sign-In integration (`business-logic-v1.0.md` line 29). Implementation TBD.
-  - *Rule:* `agora-ping-api` must verify Google ID tokens (signature, `aud` client ID, `iss`, `exp`) on the server. *Miss →* Forged tokens grant arbitrary account takeover.
-- **Authorization (Verified role skeleton):** Five-tier RBAC (`A`–`E` in `business-logic-v1.0.md` lines 19–25):
-  - `A. System Administrator` — System/server configuration overrides, backups.
-  - `B. Administrator` — General settings, periodic analytics/reports.
-  - `C. Moderator` — TBD.
-  - `D. Contributor` — TBD.
-  - `E. Guest` — Unauthenticated, limited public views only.
-  - *Rule:* Enforce role checks on every API route by default (deny-by-default; explicitly opt in `E. Guest`). *Miss →* New endpoints default to public access.
+- **Authentication:** Google Sign-In integration (`business-logic-v1.0.md`) for online sync, publishing, flagging, and admin actions. Offline field logging and local CSV/JSON export on Android require zero internet dependency.
+  - *Rule:* `agora-ping-api` must verify Google ID tokens (`signature`, `aud`, `iss`, `exp`) server-side. *Miss →* Forged identities bypass consent and moderation controls.
+- **Authorization (5-tier RBAC, deny-by-default):**
+  - `A. System Administrator` — Server/infrastructure config overrides (Supabase/API) and regular backups.
+  - `B. Administrator` — General settings, retention schedules, periodic regional analytics/reports.
+  - `C. Community Reviewer / Moderator` — Automated threshold rule engine + human reviewer processing community-guideline flags.
+  - `D. Field Researcher / Enumerator` — Offline trait logging/export, opted-in sync/publish, sample exploration, peer flagging.
+  - `E. Guest` — Unauthenticated read-only access to privacy disclosures, retention schedules, threshold-gated summaries, and public anonymized previews.
 
 ---
 
-## Mandatory Privacy-by-Design Controls (Verified from `business-logic-v1.0.md` line 39)
+## Mandatory Privacy & Governance Controls (Verified from `business-logic-v1.1.md`)
 
-1. **Data Privacy Act compliance** — Minimize personal data collected and document lawful basis.
-2. **Location protection** — Fuzz, bucket, or strip precise coordinates before persistence or display.
-3. **Retention limits** — Enforce automated expiration/deletion for personal and event records.
-4. **No per-user trails** — Do not link sequential location/behavior records into a reconstructable per-user history in DBs or logs.
-5. **Aggregation thresholds** — Enforce minimum group sizes before releasing aggregated metrics.
-6. **Consent for any data resale** — Require explicit, revocable opt-in consent before any data is shared or resold.
+1. **Data Privacy Act compliance** — Minimize personal data collected and publish clear disclosures on the Web portal.
+2. **Coarse zone polygon location protection & zero-PII `AP1` QR tags** — Generalize exact plot coordinates to coarse zone polygons (municipality/city-level or coarse grid cell) upon sync; never persist/log exact pins; encode only `AP1|<sample_uuid>|<crop_code>|<YYYY-MM-DD>` (zero PII/GPS) inside printed QR labels (see 04 #7).
+3. **No per-user trails** — Never track, store, or log enumerator movement paths.
+4. **Retention limits** — Auto-expire unsynced local drafts after **30 days** (warn at day 25) and unverified transient server staging records after **7 days**.
+5. **Minimum sample aggregation threshold (`k >= 5`)** — Regional trait summaries render only when `(crop_type, coarse_zone)` has at least `5` samples.
+6. **Explicit opt-in & revocable consent** — Default `local_only`; require explicit opt-in before online sharing, public dataset inclusion, or data resale, and support contributor withdrawal/deletion.
+7. **Private guideline hits only (no public reputation scores)** — Max `1` flag/user/`sample_uuid`; `3` distinct flags auto-hide the sample; `3` confirmed hits trigger a private review hold; never expose hits or reputation metrics publicly.
+8. **Zero financial bait** — No cash, credits, points, badges, or convertible rewards.
 
 ---
 
 ## Secrets Handling
 
-- **Never commit secrets** to any of the four repos or mention secret values in `agora-ping-specs/skills/` (`handoff.md` line 29). Name environment variables only.
-- **Current secret inventory:** None yet (no `.env.example`, keystore config, or CI secrets exist). Add an env-var inventory table here (names and owners only, never values) as soon as the first repo introduces config.
+- **Never commit secrets** to any of the four repos or include values in `skills/` (`handoff.md` line 29). Name environment variables only.
+- **Anticipated secret boundaries (env var names TBD on scaffold):** Supabase service-role key (server-only in `agora-ping-api`, never shipped in `agora-ping-web` or `agora-ping-android`), Google OAuth client secrets, Android release signing keystore.
 
 ---
 
 ## Injection Surfaces, Debug Gates, and Accepted Gaps
 
-- **Injection surfaces & debug gates:** None yet (no application code). Populate once ORM/SQL, web rendering, Android intents/WebViews, and debug flags exist.
-- **Accepted gaps (current bootstrap state):**
-  - No automated secret scanning, branch protection, or CI security checks are configured yet (see 15 #6).
-  - `C. Moderator` and `D. Contributor` permissions are undefined in `business-logic-v1.0.md` (see 15 #2).
+- **Injection surfaces & debug gates:** None yet (no application code). Watch CSV formula injection on local Android CSV exports (`=`, `+`, `-`, `@` cells opened in spreadsheets) when implementing export!
+- **Accepted gaps (current state):** No CI secret scanning, branch protection, or automated security tests exist yet (see 15 #6).
 
 ---
 
 ## Security Change Checklist
 
-Before merging any auth, data, or API change:
-1. Does every new endpoint enforce its exact role set from `business-logic-v1.0.md` (`A`–`E`) server-side?
-2. Does any new table, response, or log line accidentally create a per-user trail or leak raw location?
-3. Does any new analytics query enforce an aggregation threshold?
-4. Does any new personal/event table define a retention limit?
-5. Are all credentials loaded from environment variables / secret stores with zero secrets in git diffs?
+1. Does every new endpoint enforce its exact role set (`A`–`E`) server-side?
+2. Are exact coordinates generalized to coarse zone polygons before online persistence, with zero per-user trails in DB or logs?
+3. Are regional summaries gated by minimum sample aggregation thresholds?
+4. Do unsynced/unverified drafts enforce fixed retention auto-expiry, and does online sync require explicit opt-in consent?
+5. Are moderation hits kept strictly private (zero public reputation fields in API responses)?
+6. Are Supabase service keys and OAuth secrets absent from client bundles and git diffs?

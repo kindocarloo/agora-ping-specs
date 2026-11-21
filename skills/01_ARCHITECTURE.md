@@ -1,46 +1,48 @@
 # 01 — Architecture
 
-**Purpose:** Read this first. Explains the ecosystem's four-repository layout, ownership boundaries, planned data flows, architectural decisions, and ranked technical debt.
+**Purpose:** Read this first. Explains the ecosystem's four-repository layout, ownership boundaries, end-to-end data flows, architectural decisions, and ranked technical debt.
 
-**Confidence note:** verified against pre-initial-commit workspace (unborn `HEAD` on `main` across all 4 repos) on 2026-11-21. No application code exists yet; architectural boundaries are verified from repo topology, `agora-ping-specs/business-logic-v1.0.md`, and `agora-ping-specs/git-guidelines.md`. The code wins (see 16 #7).
+**Confidence note:** verified against approved `agora-ping-specs/business-logic-v1.1.md`, customized `agora-ping-specs/git-guidelines.md` (`AP` / `WAP`/`BAP`/`AAP`/`SAP`), and pushed `main` branches (`api` `6578b62`, `web` `c7121f4`, `android` `c0b6e4b`, `specs` `dc3507f`) on 2026-11-22. No application code exists yet; stack and product flows are verified from `business-logic-v1.1.md`. The code wins (see 16 #7).
 
 ---
 
 ## One-Paragraph Model
 
-`agora-ping-ecosystem` is a multi-repository platform split into three runtime products — a backend API (`agora-ping-api`), a web frontend (`agora-ping-web`), and an Android client (`agora-ping-android`) — governed by a fourth specification repository (`agora-ping-specs`). At the time of verification, all four repositories are freshly initialized with no commits, no tech stack manifests, and no deployed services. The confirmed architectural anchors are Google Sign-In authentication, a five-tier RBAC model (`A`–`E`), a mandatory privacy-by-design layer (Data Privacy Act compliance, location protection, retention limits, no per-user trails, aggregation thresholds, and consent for any data resale), and a maturity-based release pipeline (`main` → `beta` → `release` → production).
+`agora-ping` is an offline-first root crop trait characterization and community data-sharing platform for researchers and agricultural communities (Cassava, Sweet Potato, Taro, Yam). It spans four Git repositories: a **Kotlin** offline-first Android field wizard (`agora-ping-android`), a **Next.js** web portal (`agora-ping-web`), a backend API (`agora-ping-api`) backed by **Supabase**, and a specifications/skills repository (`agora-ping-specs`). Versioned **Official Guide Descriptor Engine** trait decks (ordered by plant part: foliage, stem/vine, storage root/corm, with standardized categorical choices and numeric research codes) power a one-trait-per-screen Android wizard with a continuous multi-specimen loop (`sample_uuid` per specimen, returning directly to crop-type selection). Enumerators export coded, per-crop CSV/JSON tables offline for R, Weka, or STAR, and optionally sync opted-in anonymized samples online via `*_uuid` keys where exact plot coordinates are generalized to coarse zone polygons, peers explore and flag records via private guideline hits (no public reputation scores, zero financial bait), and regional trait averages display only above minimum aggregation thresholds.
 
 ---
 
 ## Components and Ownership
 
-| Repository | Remote (`origin`) | Owns | Must NOT Own | Confidence |
-|---|---|---|---|---|
-| `agora-ping-specs` | `git@github.com:kindocarloo/agora-ping-specs.git` | Business logic specs, research/sense-making, git/release guidelines, engineering skills (`skills/`), cross-repo contracts/schemas | Runtime application code or secrets | Verified |
-| `agora-ping-api` | `git@github.com:kindocarloo/agora-ping-api.git` | Backend HTTP API, auth verification, RBAC enforcement, persistence, retention/aggregation enforcement | Client UI code, cross-repo governance docs | Verified (repo exists; internals inferred from `git-guidelines.md`) |
-| `agora-ping-web` | `git@github.com:kindocarloo/agora-ping-web.git` | Web frontend UI for allowed platforms | Direct DB access, bypassing API auth/privacy rules | Verified (repo exists; internals inferred) |
-| `agora-ping-android` | `git@github.com:kindocarloo/agora-ping-android.git` | Android client UI for allowed platforms | Direct DB access, bypassing API auth/privacy rules, storing raw unconsented user trails | Verified (repo exists; internals inferred) |
+| Repository | Remote (`origin`) | Planned Stack | Owns | Must NOT Own | Confidence |
+|---|---|---|---|---|---|
+| `agora-ping-specs` | `git@github.com:kindocarloo/agora-ping-specs.git` | Markdown / CSV | Business logic specs, research/sense-making, git/release guidelines, engineering skills (`skills/`), cross-repo contracts/schemas | Runtime application code or secrets | Verified |
+| `agora-ping-api` | `git@github.com:kindocarloo/agora-ping-api.git` | TypeScript (Node/Edge API) + Supabase | HTTP API, Google Sign-In verification, RBAC (`A`–`E`), versioned descriptor deck delivery/validation, `sample_uuid` / `*_uuid` + `revision` idempotent sync ingestion, plot-coordinate-to-zone generalization, guideline-hit threshold engine (`3` flags / `3` hits), aggregation-gated summaries (`k >= 5`) | Client UI code, cross-repo governance docs | Verified in `business-logic-v1.1.md` (code TBD) |
+| `agora-ping-web` | `git@github.com:kindocarloo/agora-ping-web.git` | Next.js | Zone-pinned community sample explorer (crop type, trait profile, coarse zone), moderation UI, regulatory & aggregated trait portal (privacy disclosures, consent controls, retention limits) | Direct DB access bypassing API privacy/aggregation rules, public reputation score UI | Verified in `business-logic-v1.0.md` (code TBD) |
+| `agora-ping-android` | `git@github.com:kindocarloo/agora-ping-android.git` | Kotlin (offline-first) | Offline Official Guide Descriptor Engine cache, sequential one-by-one trait wizard, offline QR specimen label generator (PNG/PDF via native share/print sheet) & scanner, continuous multi-specimen loop (`sample_uuid`), numeric research-code auto-encoding, per-crop CSV/JSON export (R, Weka, STAR), local sync queue, mobile explorer | Server secrets, tracking enumerator movement paths, mandatory internet for logging, PII/GPS inside QR tags | Verified in `business-logic-v1.0.md` (code TBD) |
 
 *(Root directory `agora-ping-ecosystem/` is a non-git container holding `AGENTS.md` and `handoff.md`; it is not deployed.)*
 
 ---
 
-## End-to-End Data Flows (Target State — Inferred from Specs)
+## End-to-End Data Flows (Verified from `business-logic-v1.0.md`; Implementation TBD)
 
-No runtime code exists yet. Based on `agora-ping-specs/business-logic-v1.0.md`:
-
-1. **Authentication Flow:** User signs in via Google Sign-In on `agora-ping-web` or `agora-ping-android` → client sends identity credential to `agora-ping-api` → API validates token and maps user to a role (`A`–`D`; unauthenticated callers operate as `E. Guest`).
-2. **Feature & Privacy Flow:** Client submits domain actions → `agora-ping-api` enforces RBAC (`MVP Features and Access`), strips/protects location precision and per-user trails, enforces retention limits, and applies aggregation thresholds before exposing analytics to `B. Administrator` or external consumers.
-3. **Specification → Implementation Flow:** Requirements are authored in `agora-ping-specs/business-logic-v1.0.md` → environmental scan runs via `agora-ping-specs/sense-making.md` into `agora-ping-specs/planning/sense-making.csv` → features and contracts are implemented in lockstep across `api`, `web`, and `android` (see 04 #3).
+1. **Descriptor Deck Sync (`Supabase` → `API` → `Android`):** Versioned trait decks for Cassava, Sweet Potato, Taro, and Yam (ordered by plant part: foliage, stem/vine, storage root/corm; standardized categorical choices + numeric research codes + numeric validation ranges) are stored in Supabase and cached offline in `agora-ping-android` (see 04 #6).
+2. **Offline Sequential Wizard, QR Labeling & Continuous Multi-Specimen Loop (Zero Internet):** Enumerator picks crop type → steps through one plant part and trait per screen (official multiple-choice or range-validated numeric input) → commits specimen locally with a `sample_uuid` → app generates an offline QR code (`sample_uuid`, crop code, date; exportable as printable PNG/PDF via Android native share/print sheet, scannable to retrieve/update records) → wizard immediately returns to crop-type selection so mixed root crop specimens can be logged and labeled consecutively in one field session.
+3. **Automated Statistical Encoding & Local Export (Zero Internet):** `agora-ping-android` maps each trait selection to its official numeric research code and exports clean, **per-crop** CSV/JSON tables ready for immediate import into R, Weka, or STAR.
+4. **Offline-to-Online Sample Sync (`Android` → `API` → `Supabase`):** With explicit opt-in consent and Google Sign-In, queued specimens sync idempotently via `*_uuid` (`sample_uuid`) keys → `agora-ping-api` validates against the deck version, generalizes exact plot coordinates to coarse zone polygons, discards enumerator movement paths, and writes anonymized samples to Supabase.
+5. **Zone Explorer, Guideline-Hit Moderation & Regulatory Portal (`Web` & `Android` ↔ `API`):** Users filter community samples by crop type, trait profile, and coarse geographic zone. Peer flags on misclassified specimens trigger the automated threshold rule engine to hide entries and log private guideline hits (never public reputation scores) for `C. Community Reviewer / Moderator`. The Web portal hosts privacy disclosures, consent controls, retention limits, and threshold-gated regional trait averages.
+6. **Specification → Implementation Flow:** Requirements in `agora-ping-specs/business-logic-v1.0.md` drive `agora-ping-specs/sense-making.md` (`planning/sense-making.csv`) and lockstep implementation across `api`, `web`, and `android` (see 04 #3, #5, #6).
 
 ---
 
 ## Hard Boundaries
 
-1. **Specifications repo contains no runnable code.** *Miss →* `agora-ping-specs` release tags (`SCN` / ecosystem spec prefix) lose their baseline-approval semantics defined in `git-guidelines.md` lines 467–482.
-2. **Only Web and Android are allowed client platforms** (`business-logic-v1.0.md` line 5). *Miss →* Unbudgeted platform scope breaks feature parity and release coordination.
-3. **No per-user tracking trails & enforced aggregation thresholds** (`business-logic-v1.0.md` line 39). *Miss →* Violates the mandatory Data Privacy Act solution layer and requires breaking schema migrations later (see 07, 09, 16 #3).
-4. **Strict maturity-based branch promotion (`main` → `beta` → `release` → production).** Independent testers never test `main` or `beta` builds (`git-guidelines.md` lines 307–310). *Miss →* Unverified development code leaks into integration testing and invalidates release tags.
+1. **Offline-first field core on Android:** Guided trait walk-through, `*_uuid` generation, validation, and CSV/JSON export must work with zero internet connectivity. *Miss →* Unusable in rural/field characterization sites.
+2. **Privacy by design & location generalization:** Exact coordinates must be generalized to coarse zone polygons upon sync; enumerator movement trails are never tracked or stored; regional summaries require minimum sample thresholds (`business-logic-v1.0.md`). *Miss →* Violates Data Privacy Act compliance (see 07, 09, 16 #3).
+3. **Zero financial bait & no public reputation scores:** No monetary payouts, credits, convertible rewards, or public user karma/reputation scores. *Miss →* Distorts scientific data quality and violates core product governance.
+4. **Specifications repo contains no runnable code** and **only Web and Android are allowed client platforms**. *Miss →* Breaks spec release tagging (`git-guidelines.md`) and platform scope.
+5. **Strict maturity-based branch promotion (`main` → `beta` → `release` → production).** Independent testers never test `main` or `beta` builds (`git-guidelines.md` lines 307–310).
 
 ---
 
@@ -48,38 +50,38 @@ No runtime code exists yet. Based on `agora-ping-specs/business-logic-v1.0.md`:
 
 ### Decision: Four-repository ecosystem split (verified 2026-11-21, repo bootstrap)
 - **Status:** accepted
-- **Context:** The platform ships a backend API, a web client, an Android client, and living specifications with independent release cadences.
-- **Choice:** Separate Git repositories (`agora-ping-api`, `agora-ping-web`, `agora-ping-android`, `agora-ping-specs`) nested under a non-git local workspace folder (`agora-ping-ecosystem/`).
+- **Context:** Platform ships an Android app, Web app, Backend API, and living specifications with independent release cadences.
+- **Choice:** Separate Git repositories (`agora-ping-api`, `agora-ping-web`, `agora-ping-android`, `agora-ping-specs`) nested under a non-git local workspace folder.
 - **Alternatives:** Single monorepo with shared tooling.
-- **Consequences:** Each product gets its own weekly release tag stream (`00Z`), but cross-repo changes require explicit lockstep tracking (see 04) and root-level `git` commands fail (see 05 #1).
+- **Consequences:** Independent weekly release tags (`00Z`), but cross-repo changes require explicit lockstep tracking (see 04) and root-level `git` commands fail (see 05 #1).
+
+### Decision: Offline-first Kotlin Android + Next.js Web + Supabase stack with `*_uuid` keys (2026-11-22, `business-logic-v1.0.md`)
+- **Status:** accepted
+- **Context:** Field enumerators work offline in agricultural zones and need clean statistical datasets plus optional community sharing.
+- **Choice:** Kotlin for offline-first Android logging/export, Next.js for Web explorer/portal, backend API + Supabase for sync/storage, and client-generated `*_uuid` record keys.
+- **Alternatives:** Online-only web form or server-assigned sequential IDs.
+- **Consequences:** Conflict-safe offline record creation and instant field usability, at the cost of maintaining local sync queues and schema parity across Kotlin, API, and Supabase (see 07, 08).
 
 ### Decision: Maturity-based branching and weekly ISO-week tagging (verified 2026-11-21, `git-guidelines.md`)
 - **Status:** accepted
 - **Context:** Developers, QA, independent integration testers, and final production approvers operate as separate gates.
 - **Choice:** Enforce `main` → `beta` → `release` → production promotion with `<prefix>.0X.Y.00Z[a|b|rc][N]` tags cut on Fridays after 17:00 local time.
-- **Alternatives:** Trunk-based continuous deployment or GitFlow feature/hotfix branching.
-- **Consequences:** Clear auditability and QA gating, but requires disciplined branch promotions and manual tag-table updates in `git-guidelines.md` (see 04 #4, 10).
+- **Alternatives:** Trunk-based continuous deployment or GitFlow.
+- **Consequences:** Clear auditability and QA gating, requiring disciplined promotions and lockstep updates to `git-guidelines.md` (see 04 #4, 10).
 
-### Decision: Google Sign-In as baseline authentication (verified 2026-11-21, `business-logic-v1.0.md`)
-- **Status:** accepted (implementation TBD)
-- **Context:** Users authenticate across both Web and Android clients.
-- **Choice:** Requirement #1 mandates Google Sign-In integration; unauthenticated users fall into `E. Guest`.
-- **Alternatives:** Custom email/password authentication or multi-provider OAuth.
-- **Consequences:** Offloads password storage risk, but requires coordinating Google OAuth client IDs across Web, Android, and API token verification (see 09).
-
-### Decision: Privacy-by-design as a mandatory solution layer (verified 2026-11-21, `business-logic-v1.0.md`)
-- **Status:** accepted (implementation TBD)
-- **Context:** System handles user activity and potentially location/analytics data under Data Privacy Act constraints.
-- **Choice:** Mandate location protection, retention limits, no per-user trails, aggregation thresholds, and explicit consent for any data resale at the architecture layer.
-- **Alternatives:** Adding privacy controls after MVP launch.
-- **Consequences:** Constrains database schema, logging, and analytics queries from Day 1 (see 07, 09, 16 #3).
+### Decision: Google Sign-In, privacy-by-design, private moderation hits, and zero financial bait (2026-11-22, `business-logic-v1.0.md`)
+- **Status:** accepted
+- **Context:** Platform handles agronomic field records and community contributions under Data Privacy Act constraints.
+- **Choice:** Google Sign-In for online actions, coarse zone polygon generalization, no per-user trails, transient draft auto-expiry, threshold-gated summaries, opt-in sharing consent, private guideline hits without public reputation scores, and zero monetary incentives.
+- **Alternatives:** Gamified/paid crowdsourcing with exact GPS pins and public leaderboards.
+- **Consequences:** Protects enumerator privacy and scientific integrity, constraining DB schema, moderation UI, and analytics queries from Day 1 (see 07, 09, 16 #3).
 
 ---
 
 ## Inherited Tradeoffs
 
-- **Template bootstrap state:** `agora-ping-specs` was seeded from a reusable project template (`code-name` / `CN`), which accelerates governance setup but leaves placeholder strings and naming drift (`code-name-app` vs `agora-ping-android`) until customized (see 06 #1, 15 #1).
-- **Non-git workspace wrapper:** Keeping `AGENTS.md` and `handoff.md` in `agora-ping-ecosystem/` outside any git repo means root-level edits are not version-controlled unless mirrored into `agora-ping-specs/`.
+- **Template bootstrap remnants:** `git-guidelines.md` still retains `code-name`/`CN` placeholders and `code-name-app` vs `agora-ping-android` naming drift until customized (see 06 #1, 15 #1).
+- **Non-git workspace wrapper:** Root `AGENTS.md` and `handoff.md` sit outside the four Git repos and are not synced to GitHub unless mirrored into `agora-ping-specs/`.
 
 ---
 
@@ -87,7 +89,7 @@ No runtime code exists yet. Based on `agora-ping-specs/business-logic-v1.0.md`:
 
 | Rank | Item | Why It Hurts | Target Fix | Cross-ref |
 |---|---|---|---|---|
-| 1 | `business-logic-v1.0.md` is still an unfilled template | Blocks tech stack choice, DB schema, API design, RBAC matrix, and `sense-making.md` research | Fill all `<...>` fields, requirements 2–7, Moderator/Contributor roles, and MVP access matrix | 15 #2 |
-| 2 | `git-guidelines.md` still has `code-name`/`CN` placeholders and `app` vs `android` drift | Causes inconsistent commit scopes and wrong release tag prefixes from the very first commit | Replace `code-name`/`CN` with Agora Ping's official code name & short code; standardize `android` vs `app` | 04 #1, 06 #1, 15 #1 |
-| 3 | All 5 `AGENTS.md` files are identical 9-line stubs | Sub-repos lack stack-specific build, lint, test, and architecture rules | Add repo-specific instructions to each `agora-ping-*/AGENTS.md` as stacks are chosen | 04 #2, 15 #4 |
-| 4 | All 4 repos have unborn `HEAD` (`origin/main [gone]`) | No shared baseline commit, no CI, no branch protection | Make initial commits following customized `git-guidelines.md` and push `main` | 05 #2, 15 #3 |
+| 1 | Zero application code, schemas, tests, or CI across `api`, `web`, and `android` | Platform exists only as specs and `AGENTS.md` stubs on `main` | Scaffold Kotlin, Next.js, TypeScript API, and Supabase schemas/migrations | 11, 15 #3 |
+| 2 | All 5 `AGENTS.md` files are identical 9-line stubs | Sub-repos lack Kotlin/Next.js/TypeScript-API/Supabase build, lint, and test rules | Add stack-specific instructions to each `agora-ping-*/AGENTS.md` | 04 #2, 15 #4 |
+| 3 | Missing `agora-ping-specs/planning/sense-making.csv` | Environmental scanning has not been run against `business-logic-v1.1.md` | Run Recipe 3 (`14_DEVELOPER_WORKFLOWS.md`) | 04 #5, 15 #5 |
+| 4 | `<Team Name>` placeholder remains in `business-logic-v1.1.md` | Needed before external launch/disclosures | Confirm team name and update `business-logic-v1.1.md` | 15 #2 |

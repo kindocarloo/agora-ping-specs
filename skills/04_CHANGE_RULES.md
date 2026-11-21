@@ -2,7 +2,7 @@
 
 **Purpose:** Inventory of every lockstep set, hidden cross-file/cross-repo coupling, and high-risk change area. Read before modifying shared names, specs, instructions, or release tags.
 
-**Confidence note:** verified against pre-initial-commit workspace (unborn `HEAD` on `main` across all 4 repos) on 2026-11-21. No code-level enum/DTO lockstep sets exist yet; add them here the moment shared types or API contracts are introduced. The code wins (see 16 #7).
+**Confidence note:** verified against updated `agora-ping-specs/business-logic-v1.0.md` on 2026-11-22. Lockstep Set #6 captures the cross-repo Official Guide Descriptor Engine contract; populate exact file paths for #6 once Supabase/API/Android/Web code lands. The code wins (see 16 #7).
 
 ---
 
@@ -10,13 +10,13 @@
 
 ### #1 Ecosystem Identity (Code Name, Short Code, Product Prefixes)
 
-When defining or changing the project code name, short code, or product names, update **all** of these together:
+Confirmed identity: **`agora-ping`** / short code **`AP`** / prefixes **`WAP`**, **`BAP`**, **`AAP`**, **`SAP`**. When changing ecosystem names or prefixes, update **all** of these together:
 
-1. `agora-ping-specs/business-logic-v1.0.md` — `Project Code Name` (line 10) and `Project Short Code` (line 11).
-2. `agora-ping-specs/git-guidelines.md` — Preferred & general scopes (`code-name-api`, `code-name-web`, `code-name-android`/`code-name-app`, `code-name-specs`, lines 57–107), Ecosystem-wide identity (`Code Name`, `Short Code`, lines 270–271), Product prefixes (`WCN`, `BCN`, `ACN`, `SCN`, lines 277–282, 406, 414–415), and Release Tags headings/next-release lines (lines 521–552).
+1. `agora-ping-specs/business-logic-v1.1.md` — `Project Code Name` and `Project Short Code`.
+2. `agora-ping-specs/git-guidelines.md` — Preferred & general scopes (`agora-ping-api`, `agora-ping-web`, `agora-ping-android`, `agora-ping-specs`), Ecosystem-wide identity (`Agora Ping`, `AP`), Product prefixes (`WAP`, `BAP`, `AAP`, `SAP`), and Release Tags headings/next-release lines.
 3. Repository folder names & GitHub remotes (`agora-ping-api`, `agora-ping-web`, `agora-ping-android`, `agora-ping-specs`).
 
-- *Miss →* Permanent commit scopes and release tags ship with placeholder `code-name`/`CN` or split across `agora-ping-android:` vs `agora-ping-app:` (see 06 #1, 15 #1).
+- *Miss →* Commit scopes and release tags drift across repos (see 06 #1).
 
 ### #2 Agent Instruction Entrypoints (`AGENTS.md`)
 
@@ -58,6 +58,28 @@ Whenever `agora-ping-specs/business-logic-v*.md` changes meaningfully:
 3. `agora-ping-specs/planning/sense-making.csv` (generated output — not yet created)
 
 - *Miss →* Environmental scan scores (`Impact`, `Relevance`, `Uncertainty`, `Urgency`) reflect stale or placeholder requirements (see 05 #4, 15 #5).
+
+### #6 Official Guide Trait Decks & Numeric Research Codes (Planned Cross-Repo Contract)
+
+Whenever adding a crop, changing plant-part ordering (`foliage`, `stem/vine`, `storage root/corm`), editing categorical choices, changing numeric validation ranges, or updating numeric research codes:
+
+1. Canonical versioned trait deck definitions in `agora-ping-specs/` (contract/schema) and Supabase (`agora-ping-api` migrations/seeds)
+2. Server-side deck version validator in `agora-ping-api` (validating synced `sample_uuid` payloads against the deck version they were recorded under)
+3. Offline cached trait deck, sequential wizard screens, and per-crop CSV/JSON encoder in `agora-ping-android`
+4. Trait-profile filter definitions and human-readable label renderers in `agora-ping-web`
+
+- *Miss →* Offline Android exports emit different numeric research codes than Supabase/Web expect, or synced specimens logged on an older cached deck fail validation and stay stranded in the Android queue (see 01, 07, 08). Always bump the deck version rather than mutating existing research code meanings in place.
+
+### #7 Offline QR Specimen Label Contract (`AP1`)
+
+Confirmed format: `AP1|<sample_uuid>|<crop_code>|<YYYY-MM-DD>` with crop codes `CAS` (Cassava), `SWP` (Sweet Potato), `TAR` (Taro), `YAM` (Yam), and zero PII/GPS. Whenever extending the QR payload or crop code list, update together:
+
+1. `agora-ping-specs/business-logic-v1.1.md` (Section 7 contract)
+2. QR generator & printable PNG/PDF label renderer (plus human-readable fallback line) in `agora-ping-android`
+3. QR scanner parser in `agora-ping-android` (must remain backward-compatible with `AP1` tags already printed on physical specimens)
+4. Crop-code mapping in `agora-ping-api` and `agora-ping-web`
+
+- *Miss →* Printed field tags become unscannable after an app update, breaking Field → Harvest → Lab specimen continuity (see 01, 09).
 
 ---
 

@@ -1,36 +1,32 @@
 # 15 — Known Limitations
 
-**Purpose:** Honest inventory of drift, unfinished specs, architectural constraints, security weaknesses, and redesign candidates — ordered by how likely they are to surprise an engineer today.
+**Purpose:** Honest inventory of drift, remaining spec gaps, architectural constraints, security weaknesses, and redesign candidates — ordered by how likely they are to surprise an engineer today.
 
-**Confidence note:** verified against pre-initial-commit workspace (unborn `HEAD` on `main` across all 4 repos) on 2026-11-21. Every item below was directly verified on disk. The code wins (see 16 #7).
+**Confidence note:** verified against approved `agora-ping-specs/business-logic-v1.1.md`, customized `agora-ping-specs/git-guidelines.md` (`AP`), and pushed `main` branches across all 4 repos on 2026-11-22. Every item below was directly verified on disk. The code wins (see 16 #7).
 
 ---
 
 ## Gaps Ordered by Surprise Likelihood
 
-### #1 Template Drift & Naming Conflict in `agora-ping-specs/git-guidelines.md` (Drift — Verified)
-- **What:** `git-guidelines.md` still contains template placeholders (`code-name`, `Code Name`, `CN`, `WCN`/`BCN`/`ACN`/`SCN`, `<feature1>`), conflicts with itself on Android naming (`code-name-android` on line 521 vs `code-name-app` on lines 59, 63, 68, 84–85, 281, 559), and carries hardcoded historical dates (`2026-07-04`, `2026-10-05`, `2026-10-09`, `ISO 2026-W41`) from another project.
-- **Why it surprises:** Anyone copying commit scopes or tag prefixes verbatim on Day 1 writes invalid scopes/tags into permanent Git history (see 04 #1, 06 #1).
+### #2 Remaining `<Team Name>` Placeholder in `business-logic-v1.1.md` (Minor Spec Gap — Verified)
+- **What:** `business-logic-v1.1.md` confirms the full MVP scope, stack (Kotlin, Next.js, TypeScript API, Supabase), `AP` short code, `AP1` QR contract, and numeric governance constants (`k >= 5`, `3` flags, `3` private hits, `30d`/`7d` retention), leaving only `<Team Name>` to confirm before external launch/disclosures.
+- **Why it surprises:** Regulatory/privacy disclosure pages on `agora-ping-web` need the real legal/team entity name before public launch.
 
-### #2 Unfilled `agora-ping-specs/business-logic-v1.0.md` (Deferred Spec — Verified)
-- **What:** Tech stack, project code name, short code, descriptions, `C. Moderator` / `D. Contributor` descriptions, System Requirements 2–7, and the `MVP Features and Access` table are all placeholders (`<...>`, `...`, `- xxx`).
-- **Why it surprises:** Blocks architecture, database schema, API contracts, RBAC enforcement, and `sense-making.md` research (see 01, 05 #4).
-
-### #3 Zero Application Code, Commits, Tests, or CI Across All 4 Repos (Bootstrap State — Verified)
-- **What:** `agora-ping-api`, `agora-ping-web`, `agora-ping-android`, and `agora-ping-specs` all report `No commits yet on main...origin/main [gone]`. No runtime code, manifests, schemas, tests, or CI workflows exist yet.
-- **Why it surprises:** Running standard git commands (`git log`, `git diff`) or looking for build scripts immediately fails until initial commits are made (see 05 #2, 11).
+### #3 Zero Application Code, Schemas, Tests, or CI Across `api`, `web`, and `android` (Bootstrap State — Verified)
+- **What:** All four repos have initial commits pushed to `origin/main` (`api` `6578b62`, `web` `c7121f4`, `android` `c0b6e4b`, `specs` `dc3507f`), but the three runtime repos contain only `AGENTS.md` — no Kotlin, Next.js, TypeScript API, Supabase migrations, bundled `v1.0` core trait deck JSON, tests, or CI workflows exist yet.
+- **Why it surprises:** No build or test commands exist to run until scaffolding lands (see 11).
 
 ### #4 Five Byte-Identical Placeholder `AGENTS.md` Files (Drift / Maintenance Risk — Verified)
-- **What:** Root `AGENTS.md` and all four sub-repo `AGENTS.md` files contain the exact same 9-line template pointing to `*-api/AGENTS.md`, `*-android/AGENTS.md`, `*-web/AGENTS.md`, `*-specs/AGENTS.md`, `*-specs/skills/*.md`, and `*-specs/git-guidelines.md`.
-- **Why it surprises:** Opening a sub-repo standalone breaks those sibling globs (see 04 #2, 05 #3), and each sub-repo lacks stack-specific build/test/style instructions.
+- **What:** Root `AGENTS.md` and all four sub-repo `AGENTS.md` files still contain the exact same 9-line template pointing to sibling globs (`*-specs/skills/*.md`, etc.).
+- **Why it surprises:** Opening a single sub-repo standalone breaks sibling globs (see 04 #2, 05 #3), and each repo lacks Kotlin/Next.js/TypeScript-API/Supabase build and test instructions.
 
 ### #5 Missing Environmental Scan (`agora-ping-specs/planning/sense-making.csv`) (Deferred Deliverable — Verified)
-- **What:** `agora-ping-specs/sense-making.md` specifies output at `*-specs/planning/sense-making.csv`, but neither `planning/` nor `sense-making.csv` exists yet.
-- **Why it surprises:** Downstream planning docs referencing sense-making findings will find nothing until `business-logic-v1.0.md` is filled and `sense-making.md` is executed (see 04 #5, 14 Recipe 3).
+- **What:** `business-logic-v1.1.md` is now approved and ready for environmental scanning, but `agora-ping-specs/planning/sense-making.csv` has not been generated yet.
+- **Why it surprises:** Downstream planning artifacts referencing `sense-making.csv` won't find it until Recipe 3 (`14_DEVELOPER_WORKFLOWS.md`) is run (see 04 #5).
 
 ### #6 No Automated Enforcement of Git, Privacy, or Security Rules (Security / Governance Weakness — Verified)
-- **What:** No `.git/hooks` (only default `.sample` hooks), no commit-message linter, no secret scanner, no AI-author rejection hook, and no verified GitHub branch protection on `main`/`beta`/`release`.
-- **Why it surprises:** Every governance rule in `git-guidelines.md` (commit format, no AI author, branch promotion gates) currently relies 100% on manual discipline (see 03, 09, 10).
+- **What:** No `.git/hooks`, commit-message linter, secret scanner, AI-author rejection hook, or verified GitHub branch protection on `main`/`beta`/`release`.
+- **Why it surprises:** Commit formatting, AI-author exclusion, and branch promotion gates rely purely on manual discipline (see 03, 09, 10).
 
 ---
 
@@ -38,7 +34,15 @@
 
 | Rank | Candidate | Trigger to Act |
 |---|---|---|
-| 1 | Complete `business-logic-v1.0.md` and customize `git-guidelines.md` (`04 #1`) | **Immediately — before the first commit in any repo** |
-| 2 | Split `AGENTS.md` so each sub-repo adds stack-specific commands/rules while referencing `agora-ping-specs/` | As soon as each repo's tech stack is initialized |
-| 3 | Add lightweight commit-msg / pre-commit hooks or GitHub Actions to enforce `scope: Summary`, no secrets, and no AI author | Immediately after initial push to `origin/main` |
-| 4 | Consider versioning workspace root `AGENTS.md` / `handoff.md` inside `agora-ping-specs/` (or a meta-repo) so workspace instructions aren't untracked locally | Before onboarding additional engineers |
+| 1 | Run `sense-making.md` against `business-logic-v1.1.md` to generate `agora-ping-specs/planning/sense-making.csv` | Immediately (now unblocked) |
+| 2 | Author canonical `v1.0` core descriptor deck JSON (`CAS`, `SWP`, `TAR`, `YAM`, 10–15 traits/crop) and scaffold `api`, `web`, and `android` | Next implementation milestone |
+| 3 | Split `AGENTS.md` per repo with Kotlin / Next.js / TypeScript-API / Supabase build & test commands | As soon as each repo is scaffolded |
+| 4 | Add commit-msg / pre-commit hooks or GitHub Actions to enforce `scope: Summary`, no secrets, and no AI author | Before multiple contributors push to `main` |
+| 5 | Confirm `<Team Name>` in `business-logic-v1.1.md` and consider versioning workspace root `AGENTS.md` / `handoff.md` in `agora-ping-specs/` | Before external launch / onboarding |
+
+---
+
+## Retired
+
+### #1 Template Drift & Naming Conflict in `agora-ping-specs/git-guidelines.md`
+- **Superseded (2026-11-22):** Resolved upon promotion of `business-logic-v1.1.md`. `git-guidelines.md` now uses `agora-ping`, short code `AP`, prefixes `WAP`/`BAP`/`AAP`/`SAP`, standardized `agora-ping-android:` scopes, domain feature scopes, and clean release-tag tables with stale 2026 template dates removed (see 04 #1, 06 #1). Kept here so nobody reintroduces `code-name-app` or `CN` placeholders.

@@ -17,5 +17,5 @@
   - Lines 486 and 557–559 also retain historical template dates (`2026-07-04`, `2026-10-05`, `2026-10-09`, `ISO 2026-W41`) from an unrelated repository's retroactive tagging.
 - **Why:** Reusable governance templates were dropped into `agora-ping-specs/` ahead of customizing `business-logic-v1.0.md` and before the first commit.
 - **How it was found:** Reading `agora-ping-specs/git-guidelines.md` against the actual directory names and `git remote -v` output during initial skills generation.
-- **Fix (pending — tracked in 15 #1):** Before making initial commits in any repo, decide the official ecosystem code name, short code, and whether Android commits use `agora-ping-android:` or `agora-ping-app:`, then update Lockstep Set #1 (`04 #1`) and strip stale template dates.
+- **Fix (resolved 2026-11-22):** Upon promoting `business-logic-v1.1.md`, confirmed `agora-ping` / `AP` (`WAP`, `BAP`, `AAP`, `SAP`), standardized Android scopes to `agora-ping-android:`, populated domain feature scopes, and removed the stale 2026 template dates in `agora-ping-specs/git-guidelines.md` (see 04 #1, 15 Retired).
 - **Lesson:** Never treat an uncustomized template as an active contract. Standardize cross-repo names before the first commit so permanent commit scopes and release tags don't fragment (see 04 #1, 15 #1, 16 #1, 16 #2).
